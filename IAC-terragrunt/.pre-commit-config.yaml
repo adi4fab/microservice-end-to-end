@@ -29,3 +29,9 @@ repos:
         entry: terragrunt hcl fmt
         language: system
         files: \.hcl$
+      - id: terragrunt_validate
+        name: terragrunt validate
+        entry: terragrunt validate
+        language: system
+        files: terragrunt\.hcl$
+        pass_filenames: false
