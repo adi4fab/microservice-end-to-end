@@ -5,7 +5,7 @@ include "root" {
 
 # Include module defaults for ECS
 include "module_defaults" {
-  path = "${get_repo_root()}/_module_defaults/services-ecs.hcl"
+  path   = "${get_repo_root()}/_module_defaults/services-ecs.hcl"
   expose = true
 }
 

@@ -6,17 +6,17 @@ terraform {
 
 inputs = {
   instance_type = "t3.micro"
-  
+
   # Monitoring
   monitoring = true
-  
+
   # Storage
   root_block_device = {
     volume_type = "gp3"
     volume_size = 20
     encrypted   = true
   }
-  
+
   tags = {
     ManagedBy = "Terragrunt"
   }

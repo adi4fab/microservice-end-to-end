@@ -4,8 +4,8 @@ locals {
   environment  = "dev"
 
   route53_zone_name_public = "thekiseki.com"
-  route53_zone_id_public = "Z03747862XQWQUCB7WB6M"
-  aws_account_id = "339712844367"
+  route53_zone_id_public   = "Z03747862XQWQUCB7WB6M"
+  aws_account_id           = "339712844367"
 
 
   common_tags = {

@@ -5,7 +5,7 @@ include "root" {
 
 # Include module defaults for DynamoDB
 include "module_defaults" {
-  path = "${get_repo_root()}/_module_defaults/data-stores-dynamodb.hcl"
+  path   = "${get_repo_root()}/_module_defaults/data-stores-dynamodb.hcl"
   expose = true
 }
 

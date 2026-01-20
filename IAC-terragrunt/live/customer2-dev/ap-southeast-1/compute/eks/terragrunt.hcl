@@ -5,14 +5,14 @@ include "root" {
 
 # Include module defaults for EKS
 include "module_defaults" {
-  path = "${get_repo_root()}/_module_defaults/compute-eks.hcl"
+  path   = "${get_repo_root()}/_module_defaults/compute-eks.hcl"
   expose = true
 }
 
 inputs = {
   # Example: Override cluster version
   # cluster_version = "1.29"
-  
+
   # Example: Override node group configuration for production
   # node_groups = {
   #   production = {

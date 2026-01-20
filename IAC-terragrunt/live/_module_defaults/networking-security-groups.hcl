@@ -7,7 +7,7 @@ terraform {
 inputs = {
   # Default security group rules
   # Override per environment as needed
-  
+
   tags = {
     ManagedBy = "Terragrunt"
   }

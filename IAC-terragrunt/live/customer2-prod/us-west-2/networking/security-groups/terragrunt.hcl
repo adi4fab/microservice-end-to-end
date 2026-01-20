@@ -5,7 +5,7 @@ include "root" {
 
 # Include module defaults for Security Groups
 include "module_defaults" {
-  path = "${get_repo_root()}/_module_defaults/networking-security-groups.hcl"
+  path   = "${get_repo_root()}/_module_defaults/networking-security-groups.hcl"
   expose = true
 }
 

@@ -5,7 +5,7 @@ include "root" {
 
 # Include module defaults for SNS
 include "module_defaults" {
-  path = "${get_repo_root()}/_module_defaults/global-sns.hcl"
+  path   = "${get_repo_root()}/_module_defaults/global-sns.hcl"
   expose = true
 }
 
