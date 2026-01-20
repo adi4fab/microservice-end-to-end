@@ -1,5 +1,3 @@
-# microservice-end-to-end
-
 # Terragrunt setup
 
 ## Install
