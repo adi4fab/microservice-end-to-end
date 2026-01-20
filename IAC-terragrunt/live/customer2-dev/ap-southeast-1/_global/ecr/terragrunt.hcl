@@ -5,7 +5,7 @@ include "root" {
 
 # Include module defaults for ECR
 include "module_defaults" {
-  path = "${get_repo_root()}/_module_defaults/global-ecr.hcl"
+  path   = "${get_repo_root()}/_module_defaults/global-ecr.hcl"
   expose = true
 }
 

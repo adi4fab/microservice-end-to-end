@@ -5,7 +5,7 @@ include "root" {
 
 # Include module defaults for RDS PostgreSQL
 include "module_defaults" {
-  path = "${get_repo_root()}/_module_defaults/data-stores-rds-postgres.hcl"
+  path   = "${get_repo_root()}/_module_defaults/data-stores-rds-postgres.hcl"
   expose = true
 }
 

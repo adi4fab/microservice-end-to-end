@@ -7,7 +7,7 @@ terraform {
 inputs = {
   # Encryption
   kms_master_key_id = "alias/aws/sns"
-  
+
   # Delivery policy
   delivery_policy = jsonencode({
     http = {
@@ -22,7 +22,7 @@ inputs = {
       }
     }
   })
-  
+
   tags = {
     ManagedBy = "Terragrunt"
   }

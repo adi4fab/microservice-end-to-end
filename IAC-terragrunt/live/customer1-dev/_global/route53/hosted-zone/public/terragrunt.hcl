@@ -21,8 +21,8 @@ inputs = {
   # DNS records
   records = {
     root_a = {
-      full_name = local.account_vars.locals.route53_zone_name_public 
-      name      = null                                              
+      full_name = local.account_vars.locals.route53_zone_name_public
+      name      = null
       type      = "A"
       ttl       = 60
       records = [

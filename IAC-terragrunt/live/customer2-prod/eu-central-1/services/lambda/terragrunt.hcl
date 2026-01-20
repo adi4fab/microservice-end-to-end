@@ -5,7 +5,7 @@ include "root" {
 
 # Include module defaults for Lambda
 include "module_defaults" {
-  path = "${get_repo_root()}/_module_defaults/services-lambda.hcl"
+  path   = "${get_repo_root()}/_module_defaults/services-lambda.hcl"
   expose = true
 }
 
