@@ -1,0 +1,35 @@
+# Terragrunt cache (CRITICAL)
+.terragrunt-cache/
+
+# Terraform local state & artifacts
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+
+# Terraform override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Generated files (if not committed intentionally)
+backend.tf
+provider.tf
+
+# Crash logs
+crash.log
+crash.*.log
+
+
+# IDE / OS junk
+.idea/
+.vscode/
+.DS_Store
+
+# Logs
+*.log
+
+# CLI artifacts
+terraform.rc
+.terraformrc
