@@ -29,7 +29,7 @@ To limit the parallelism export:
 export TERRAGRUNT_PARALLELISM=4
 ```
 
-## Commands
+## Terragrunt Commands
 
 ```console
 terragrunt run-all plan
