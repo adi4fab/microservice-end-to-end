@@ -4,7 +4,7 @@ locals {
   environment  = "dev"
 
   route53_zone_name_public = "thekiseki.com"
-  route53_zone_id_public   = "Z03747862XQWQUCB7WB6M"
+  route53_zone_id_public   = "Z011660313K8GU3HUFZB5"
   aws_account_id           = "339712844367"
 
 
