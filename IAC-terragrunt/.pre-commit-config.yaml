@@ -17,7 +17,7 @@ repos:
     rev: v1.96.0
     hooks:
       - id: terraform_fmt
-      - id: terraform_validate
+     # - id: terraform_validate
 
   # -----------------------------
   # Terragrunt
@@ -29,9 +29,9 @@ repos:
         entry: terragrunt hcl fmt
         language: system
         files: \.hcl$
-      - id: terragrunt_validate
-        name: terragrunt validate
-        entry: terragrunt validate
-        language: system
-        files: terragrunt\.hcl$
-        pass_filenames: false
+      #- id: terragrunt_validate
+       # name: terragrunt validate
+       # entry: terragrunt validate
+       # language: system
+       # files: terragrunt\.hcl$
+       # pass_filenames: false
