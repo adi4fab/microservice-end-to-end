@@ -1,7 +1,16 @@
-# Account-level variables for customer1-prod
 locals {
-  account_name = "customer1-prod"
-  account_id   = "333333333333"
+  account_name = "aws-ssa-prod"
+  customer     = "aws-ssa"
   environment  = "prod"
-  customer     = "customer1"
+
+  route53_zone_name_public = "thekiseki.com"
+  route53_zone_id_public   = "Z011660313K8GU3HUFZB5"
+  aws_account_id           = "339712844367"
+
+
+  common_tags = {
+    Customer    = "aws-ssa"
+    Environment = "prod"
+    ManagedBy   = "Terragrunt"
+  }
 }

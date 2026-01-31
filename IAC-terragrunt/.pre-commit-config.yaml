@@ -11,27 +11,22 @@ repos:
       - id: check-yaml
 
   # -----------------------------
-  # Terraform
+  # Terraform formatting ONLY
+  # (No terraform validate — Terragrunt handles that)
   # -----------------------------
   - repo: https://github.com/antonbabenko/pre-commit-terraform
     rev: v1.96.0
     hooks:
       - id: terraform_fmt
-      - id: terraform_validate
 
   # -----------------------------
-  # Terragrunt
+  # Terragrunt (local hooks)
   # -----------------------------
   - repo: local
     hooks:
       - id: terragrunt_fmt
         name: terragrunt hcl fmt
-        entry: terragrunt hcl fmt
-        language: system
-        files: \.hcl$
-      - id: terragrunt_validate
-        name: terragrunt validate
-        entry: terragrunt validate
+        entry: bash -c 'cd "$(dirname "$1")" && terragrunt hcl fmt'
         language: system
         files: terragrunt\.hcl$
-        pass_filenames: false
+        pass_filenames: true
