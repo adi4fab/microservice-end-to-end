@@ -1,0 +1,18 @@
+account_name: eks-masterclass
+aws_account_id: "339712844367"
+primary_short: aps1
+dr_short: use1
+
+env:
+  dev: dev
+  qa: qa
+  staging: staging
+
+dns:
+  qa_zone_public:
+  lms_zone_public:
+
+tags:
+  Account: eks-masterclass
+  ManagedBy: terragrunt
+  Project: EKS-masterclass
