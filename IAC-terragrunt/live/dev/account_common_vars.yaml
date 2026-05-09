@@ -1,0 +1,15 @@
+account_name: general
+aws_account_id: "339712844367"
+primary_short: use2
+dr_short: usw1
+global_short: use1
+
+env:
+  dev: dev
+  qa: qa
+
+
+tags:
+  Account: general
+  ManagedBy: terragrunt
+  Project: gitops-dev

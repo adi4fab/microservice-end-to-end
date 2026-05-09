@@ -1,0 +1,11 @@
+account_name: production
+aws_account_id: ""
+primary_short: use1
+
+env:
+  prod: prod
+
+tags:
+  Account: production
+  ManagedBy: terragrunt
+  Project: gitops-prod
