@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>CSV Processor</title>
+	<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+	<main class="container">
+		<h1>CSV Processor</h1>
+		<p class="sub">Upload a CSV, see its rows, and archive it to S3.</p>
+
+		<% if (message) { %><div class="banner ok"><%= message %></div><% } %>
+		<% if (error) { %><div class="banner err"><%= error %></div><% } %>
+
+		<form class="upload" action="/upload" method="post" enctype="multipart/form-data">
+			<input type="file" name="file" accept=".csv" required>
+			<button type="submit">Upload &amp; Process</button>
+		</form>
+
+		<% if (rows && rows.length) { %>
+		<section>
+			<h2><%= name %> <span class="muted">(<%= count %> rows)</span></h2>
+			<div class="scroll">
+				<table>
+					<tbody>
+					<% rows.forEach(function (row) { %>
+						<tr><% row.forEach(function (cell) { %><td><%= cell %></td><% }) %></tr>
+					<% }) %>
+					</tbody>
+				</table>
+			</div>
+		</section>
+		<% } %>
+
+		<section>
+			<h2>Previously processed files</h2>
+			<% if (files && files.length) { %>
+			<table class="files">
+				<thead><tr><th>File</th><th>Size</th><th>Archived (UTC)</th></tr></thead>
+				<tbody>
+				<% files.forEach(function (f) { %>
+					<tr>
+						<td><%= f.name %></td>
+						<td><%= f.size %> B</td>
+						<td><%= new Date(f.modified).toISOString().slice(0, 19).replace("T", " ") %></td>
+					</tr>
+				<% }) %>
+				</tbody>
+			</table>
+			<% } else { %>
+			<p class="muted">No files processed yet.</p>
+			<% } %>
+		</section>
+	</main>
+</body>
+</html>

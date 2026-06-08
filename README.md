@@ -37,6 +37,16 @@ terragrunt run-all apply
 terragrunt run-all destroy
 ```
 
+## State backend bootstrap
+
+Terragrunt 0.78+ no longer auto-creates the state bucket — bootstrap it once per
+account (idempotent). Uses `use_lockfile = true`, so S3 only, no DynamoDB.
+
+```console
+AWS_PROFILE=dev  terragrunt backend bootstrap --all --working-dir IAC-terragrunt/live/dev
+AWS_PROFILE=prod terragrunt backend bootstrap --all --working-dir IAC-terragrunt/live/prod
+```
+
 ## Local Kubernetes (kind on Docker Desktop)
 
 Local multi-node cluster for running the microservices end-to-end. Requires

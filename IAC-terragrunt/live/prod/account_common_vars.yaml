@@ -1,11 +1,12 @@
-account_name: production
-aws_account_id: ""
-primary_short: use1
+account_name: prod
+aws_account_id: "946299734469"
 
+# Region topology for this account (region_short lives in each region.hcl)
 env:
-  prod: prod
+  prod: us-east-1   # primary
+  dr: us-east-2     # disaster recovery
 
 tags:
-  Account: production
+  Account: prod
   ManagedBy: terragrunt
   Project: gitops-prod
