@@ -33,3 +33,7 @@ crash.*.log
 # CLI artifacts
 terraform.rc
 .terraformrc
+
+# Claude Code
+.claude/worktrees/
+.claude/settings.local.json
