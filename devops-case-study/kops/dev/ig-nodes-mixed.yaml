@@ -1,0 +1,33 @@
+apiVersion: kops.k8s.io/v1alpha2
+kind: InstanceGroup
+metadata:
+  name: nodes-mixed
+  labels:
+    kops.k8s.io/cluster: microsvc-dev.k8s.internal
+spec:
+  role: Node
+  minSize: 1
+  maxSize: 6
+  subnets:
+    - us-west-1a
+    - us-west-1c
+  rootVolumeSize: 100
+  rootVolumeType: gp3
+  rootVolumeEncryption: true
+  instanceMetadata:
+    httpTokens: required
+    httpPutResponseHopLimit: 1
+  # Mixed instance types AND mixed lifecycle: small on-demand base + Spot above.
+  mixedInstancesPolicy:
+    instances:
+      - m6i.large
+      - m6a.large
+      - m5.large
+    onDemandBase: 1
+    onDemandAboveBasePercentage: 30
+    spotAllocationStrategy: capacity-optimized
+  nodeLabels:
+    lifecycle: mixed
+  cloudLabels:
+    k8s.io/cluster-autoscaler/enabled: "true"
+    k8s.io/cluster-autoscaler/microsvc-dev.k8s.internal: "owned"
