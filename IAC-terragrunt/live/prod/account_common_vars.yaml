@@ -1,12 +1,10 @@
 account_name: prod
 aws_account_id: "946299734469"
 
-# Region topology for this account (region_short lives in each region.hcl)
 env:
-  prod: us-east-1   # primary
-  dr: us-east-2     # disaster recovery
+  prod: prod
+  dr: dr
 
 tags:
-  Account: prod
   ManagedBy: terragrunt
-  Project: gitops-prod
+  Project: csv-processor

@@ -1,6 +1,7 @@
 locals {
   vars        = yamldecode(file(find_in_parent_folders("account_common_vars.yaml")))
   region_vars = read_terragrunt_config(find_in_parent_folders("region.hcl"))
+
   aws_region   = local.region_vars.locals.aws_region
   region_short = local.region_vars.locals.region_short
 }

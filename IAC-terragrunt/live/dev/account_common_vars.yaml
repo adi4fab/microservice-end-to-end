@@ -1,12 +1,10 @@
 account_name: dev
 aws_account_id: "311212293512"
 
-# Region topology for this account (region_short lives in each region.hcl)
 env:
-  dev: us-west-1
-  qa: us-west-2
+  dev: dev
+  qa: qa
 
 tags:
-  Account: dev
   ManagedBy: terragrunt
-  Project: gitops-dev
+  Project: csv-processor
