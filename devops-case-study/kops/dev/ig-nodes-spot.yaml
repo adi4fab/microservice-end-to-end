@@ -1,0 +1,36 @@
+apiVersion: kops.k8s.io/v1alpha2
+kind: InstanceGroup
+metadata:
+  name: nodes-spot
+  labels:
+    kops.k8s.io/cluster: microsvc-dev.k8s.internal
+spec:
+  role: Node
+  minSize: 1
+  maxSize: 10
+  subnets:
+    - us-west-1a
+    - us-west-1c
+  rootVolumeSize: 100
+  rootVolumeType: gp3
+  rootVolumeEncryption: true
+  instanceMetadata:
+    httpTokens: required
+    httpPutResponseHopLimit: 1
+  # Mixed instance types, 100% Spot, spread across pools for resilience.
+  mixedInstancesPolicy:
+    instances:
+      - m6i.large
+      - m6a.large
+      - m5.large
+      - m5a.large
+    onDemandBase: 0
+    onDemandAboveBasePercentage: 0
+    spotAllocationStrategy: capacity-optimized
+  nodeLabels:
+    lifecycle: spot
+  taints:
+    - spot=true:PreferNoSchedule
+  cloudLabels:
+    k8s.io/cluster-autoscaler/enabled: "true"
+    k8s.io/cluster-autoscaler/microsvc-dev.k8s.internal: "owned"

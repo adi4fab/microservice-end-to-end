@@ -1,0 +1,176 @@
+apiVersion: kops.k8s.io/v1alpha2
+kind: Cluster
+metadata:
+  name: microsvc-prod.k8s.internal
+spec:
+  channel: stable
+  cloudProvider: aws
+  configBase: s3://microsvc-prod-kops-state/microsvc-prod.k8s.internal
+  kubernetesVersion: 1.35.5
+
+  # Real private DNS (not gossip). `.internal` is the ICANN-reserved private-use
+  # TLD — resolves only inside the VPC via a Route53 *private* hosted zone, which
+  # is what topology.dns.type: Private below expects.
+  dnsZone: k8s.internal
+
+  # --- networking & topology (private control-plane + nodes, bastion for access)
+  networking:
+    cilium:
+      # Transparent node-to-node encryption via WireGuard (keyless — no shared
+      # secret to manage, unlike the IPsec mode).
+      enableEncryption: true
+      encryptionType: wireguard
+  networkCIDR: 172.20.0.0/16
+  topology:
+    masters: private
+    nodes: private
+    dns:
+      type: Private
+    bastion:
+      enabled: true
+  subnets:
+    - name: us-east-1a
+      type: Private
+      zone: us-east-1a
+      cidr: 172.20.32.0/19
+    - name: us-east-1b
+      type: Private
+      zone: us-east-1b
+      cidr: 172.20.64.0/19
+    - name: us-east-1c
+      type: Private
+      zone: us-east-1c
+      cidr: 172.20.96.0/19
+    - name: utility-us-east-1a
+      type: Utility
+      zone: us-east-1a
+      cidr: 172.20.0.0/22
+    - name: utility-us-east-1b
+      type: Utility
+      zone: us-east-1b
+      cidr: 172.20.4.0/22
+    - name: utility-us-east-1c
+      type: Utility
+      zone: us-east-1c
+      cidr: 172.20.8.0/22
+
+  # --- access: restrict to corporate/VPN ranges (never 0.0.0.0/0). API is also
+  #     private (topology.dns: Private); reach it via the bastion / VPN.
+  sshAccess:
+    - 10.0.0.0/8
+  kubernetesApiAccess:
+    - 10.0.0.0/8
+
+  # --- authn/authz + secrets encryption at rest
+  authorization:
+    rbac: {}
+  encryptionConfig: true
+  iam:
+    allowContainerRegistry: true
+    useServiceAccountExternalPermissions: true
+  serviceAccountIssuerDiscovery:
+    enableAWSOIDCProvider: true
+    discoveryStore: s3://microsvc-prod-oidc-store/microsvc-prod.k8s.internal
+
+  # --- API server hardening: no anonymous auth, audit logging, modern TLS
+  kubeAPIServer:
+    anonymousAuth: false
+    tlsMinVersion: VersionTLS12
+    auditLogPath: /var/log/kube-apiserver-audit.log
+    auditLogMaxAge: 30
+    auditLogMaxBackups: 10
+    auditLogMaxSize: 100
+    auditPolicyFile: /srv/kubernetes/audit/policy.yaml
+
+  # --- kubelet hardening (CIS-aligned)
+  kubelet:
+    anonymousAuth: false
+    authenticationTokenWebhook: true
+    authorizationMode: Webhook
+    readOnlyPort: 0
+    protectKernelDefaults: true
+    streamingConnectionIdleTimeout: 5m
+    tlsCipherSuites:
+      - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+      - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+      - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+      - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+      - TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305
+      - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305
+
+  # --- audit policy dropped onto the control-plane nodes (never logs secret data)
+  fileAssets:
+    - name: audit-policy
+      path: /srv/kubernetes/audit/policy.yaml
+      roles:
+        - ControlPlane
+      content: |
+        apiVersion: audit.k8s.io/v1
+        kind: Policy
+        omitStages:
+          - RequestReceived
+        rules:
+          # High-volume, low-risk reads: don't log.
+          - level: None
+            verbs: ["get", "list", "watch"]
+          # Secrets/configmaps: metadata only — never capture their contents.
+          - level: Metadata
+            resources:
+              - group: ""
+                resources: ["secrets", "configmaps"]
+          # Authn/authz changes: full request+response.
+          - level: RequestResponse
+            resources:
+              - group: "rbac.authorization.k8s.io"
+          # Everything else: metadata.
+          - level: Metadata
+
+  # --- etcd (HA, encrypted volumes)
+  etcdClusters:
+    - name: main
+      cpuRequest: 200m
+      memoryRequest: 100Mi
+      etcdMembers:
+        - name: a
+          instanceGroup: control-plane-us-east-1a
+          encryptedVolume: true
+        - name: b
+          instanceGroup: control-plane-us-east-1b
+          encryptedVolume: true
+        - name: c
+          instanceGroup: control-plane-us-east-1c
+          encryptedVolume: true
+    - name: events
+      cpuRequest: 100m
+      memoryRequest: 100Mi
+      etcdMembers:
+        - name: a
+          instanceGroup: control-plane-us-east-1a
+          encryptedVolume: true
+        - name: b
+          instanceGroup: control-plane-us-east-1b
+          encryptedVolume: true
+        - name: c
+          instanceGroup: control-plane-us-east-1c
+          encryptedVolume: true
+
+  # --- cluster autoscaler addon (discovers node IGs by tag; scales each group)
+  clusterAutoscaler:
+    enabled: true
+    awsUseStaticInstanceList: false
+    scaleDownUtilizationThreshold: "0.5"
+    skipNodesWithLocalStorage: false
+    skipNodesWithSystemPods: false
+
+  # --- spot interruptions: drain nodes gracefully before reclaim
+  nodeTerminationHandler:
+    enabled: true
+    enableSpotInterruptionDraining: true
+    enableScheduledEventDraining: true
+
+  # --- metrics-server so HorizontalPodAutoscaler works
+  metricsServer:
+    enabled: true
+
+  certManager:
+    enabled: true

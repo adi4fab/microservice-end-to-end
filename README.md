@@ -23,18 +23,30 @@ source ~/.zshrc
 
 ## Parallelism
 
-To limit the parallelism export:
+Control how many units run concurrently (`TG_PARALLELISM`; old name was
+`TERRAGRUNT_PARALLELISM`):
 
 ```console
-export TERRAGRUNT_PARALLELISM=4
+export TG_PARALLELISM=10
 ```
+
+> First apply note: with `TF_PLUGIN_CACHE_DIR` set, the very first parallel run
+> can race while populating the provider cache ("Required plugins are not
+> installed"). Warm it once with `TG_PARALLELISM=1`, then bump back to 10 — or
+> just re-run.
 
 ## Terragrunt Commands
 
+Terragrunt 0.78+ renamed `run-all` to `run --all`. Dependencies are applied in
+order automatically (e.g. kms before s3) — no mock outputs needed.
+
 ```console
-terragrunt run-all plan
-terragrunt run-all apply
-terragrunt run-all destroy
+terragrunt run --all plan
+terragrunt run --all apply
+terragrunt run --all destroy
+
+# scope to one account/region/unit with --working-dir, e.g.
+AWS_PROFILE=dev terragrunt run --all apply --working-dir live/dev/us-west-1
 ```
 
 ## State backend bootstrap

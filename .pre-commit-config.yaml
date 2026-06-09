@@ -9,6 +9,10 @@ repos:
       - id: end-of-file-fixer
       - id: trailing-whitespace
       - id: check-yaml
+        # kops manifests bundle multiple docs (---); Helm templates are Go
+        # templates, not literal YAML, so they're excluded from this check.
+        args: [--allow-multiple-documents]
+        exclude: ^devops-case-study/helm/csv-processor/templates/
 
   # -----------------------------
   # Terraform formatting ONLY

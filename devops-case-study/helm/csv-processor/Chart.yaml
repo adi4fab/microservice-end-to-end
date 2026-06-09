@@ -1,0 +1,6 @@
+apiVersion: v2
+name: csv-processor
+description: Nginx + CSV-processor app in one pod, sharing static assets via an in-pod emptyDir
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
