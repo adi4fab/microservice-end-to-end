@@ -15,11 +15,13 @@ nginx:
   port: 8081
 
 # Application config -> rendered into a ConfigMap -> injected as env vars.
-# Populated per environment by Ansible (group_vars/<env>.yml).
+# All three are populated per environment by Ansible (vars/<env>.yml); the
+# blanks here are just the contract. Templates fall back to PORT 8080 only if
+# the chart is rendered without Ansible.
 config:
   SECRET_ID: ""
   AWS_REGION: ""
-  PORT: "8080"
+  PORT: ""
 
 serviceAccount:
   create: true
@@ -28,7 +30,7 @@ serviceAccount:
   roleArn: ""
 
 # Optional: name of a Secret holding AWS_* env vars. Only for clusters without
-# IRSA (e.g. the local kind demo). In real clusters leave empty and use IRSA.
+# IRSA (e.g. the local kind cluster). In real clusters leave empty and use IRSA.
 awsCredentialsSecret: ""
 
 service:

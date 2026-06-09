@@ -51,7 +51,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.config.PORT | int }}
+              containerPort: {{ .Values.config.PORT | default "8080" | int }}
           envFrom:
             - configMapRef:
                 name: {{ include "csv-processor.fullname" . }}-config

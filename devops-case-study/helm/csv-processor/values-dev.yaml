@@ -1,4 +1,4 @@
-# dev overrides (runs on the local kind cluster for the demo)
+# dev overrides (runs on the local kind cluster)
 replicaCount: 1
 
 image:
@@ -17,5 +17,5 @@ serviceAccount:
   # In a real dev cluster this would be the dev IRSA role ARN.
   roleArn: ""
 
-# kind has no IRSA, so the demo injects temporary AWS creds via this Secret.
+# kind has no IRSA, so we inject temporary AWS creds via this Secret.
 awsCredentialsSecret: aws-creds
