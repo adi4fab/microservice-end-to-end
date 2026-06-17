@@ -59,49 +59,6 @@ AWS_PROFILE=dev  terragrunt backend bootstrap --all --working-dir IAC-terragrunt
 AWS_PROFILE=prod terragrunt backend bootstrap --all --working-dir IAC-terragrunt/live/prod
 ```
 
-## Local Kubernetes (kind on Docker Desktop)
-
-Local multi-node cluster for running the microservices end-to-end. Requires
-Docker Desktop running (its built-in Kubernetes can stay OFF — kind provides
-the cluster).
-
-### Install
-
-```console
-brew install --cask docker-desktop
-brew install kind
-```
-
-### Cluster topology
-
-Defined in [`kind-config.yaml`](kind-config.yaml): 1 control-plane + 2 workers.
-The Kubernetes node names (shown by `kubectl get nodes`) are set via
-`nodeRegistration.name` in the config:
-
-| Kubernetes node name | Role | Docker container (kind-managed) |
-| --- | --- | --- |
-| `microsvc-control-plane` | control-plane (master) | `microsvc-control-plane` |
-| `microsvc-worker-1` | worker | `microsvc-worker` |
-| `microsvc-worker-2` | worker | `microsvc-worker2` |
-
-### Commands
-
-```console
-# create the 3-node cluster (context: kind-microsvc)
-kind create cluster --config kind-config.yaml
-
-# verify
-kubectl get nodes -o wide
-kubectl config current-context        # -> kind-microsvc
-
-# list / switch clusters
-kind get clusters
-kubectl config use-context kind-microsvc
-
-# tear down
-kind delete cluster --name microsvc
-```
-
 ## Install pre-commit
 
 ```console
