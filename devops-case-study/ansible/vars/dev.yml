@@ -1,8 +1,0 @@
-# Application configuration for the dev environment (managed in Ansible).
-namespace: csv-processor-dev
-image_tag: "1.0.0"
-
-app_config:
-  SECRET_ID: dev-usw1-csv-processor
-  AWS_REGION: us-west-1
-  PORT: "8080"
