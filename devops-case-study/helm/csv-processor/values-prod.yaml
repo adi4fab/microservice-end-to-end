@@ -1,0 +1,21 @@
+# prod overrides
+replicaCount: 3
+
+image:
+  tag: "1.0.0"
+
+service:
+  type: LoadBalancer
+
+hpa:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+
+serviceAccount:
+  # prod IRSA role ARN (pods assume this to reach S3/Secrets Manager — no static keys).
+  roleArn: ""
+
+# prod uses IRSA, so no static-credential Secret.
+awsCredentialsSecret: ""

@@ -1,0 +1,8 @@
+# Application configuration for the prod environment (managed in Ansible).
+namespace: csv-processor-prod
+image_tag: "1.0.0"
+
+app_config:
+  SECRET_ID: prod-use1-csv-processor
+  AWS_REGION: us-east-1
+  PORT: "8080"

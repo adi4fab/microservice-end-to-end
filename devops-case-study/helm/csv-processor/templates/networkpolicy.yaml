@@ -1,0 +1,33 @@
+{{- if .Values.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "csv-processor.fullname" . }}
+  labels:
+    {{- include "csv-processor.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "csv-processor.selectorLabels" . | nindent 6 }}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Inbound only to nginx's port.
+    - ports:
+        - port: web
+          protocol: TCP
+  egress:
+    # DNS resolution.
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    # Outbound HTTPS (AWS APIs: S3, Secrets Manager, STS).
+    - ports:
+        - port: 443
+          protocol: TCP
+{{- end }}
