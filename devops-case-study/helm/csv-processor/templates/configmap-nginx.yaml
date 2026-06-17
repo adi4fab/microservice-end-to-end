@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "csv-processor.fullname" . }}-nginx
+  labels:
+    {{- include "csv-processor.labels" . | nindent 4 }}
+data:
+  nginx.conf: |
+    worker_processes auto;
+    pid /tmp/nginx.pid;
+    events { worker_connections 1024; }
+    http {
+      include       /etc/nginx/mime.types;
+      default_type  application/octet-stream;
+      # keep writable paths under /tmp so the root filesystem can stay read-only
+      client_body_temp_path /tmp/client_body;
+      proxy_temp_path       /tmp/proxy;
+      fastcgi_temp_path     /tmp/fastcgi;
+      uwsgi_temp_path       /tmp/uwsgi;
+      scgi_temp_path        /tmp/scgi;
+      server_tokens off;
+      sendfile on;
+      # Must be >= the app's upload limit (maxUploadBytes, 10MB). nginx proxies
+      # every upload, so its default 1MB cap would 413 larger files before they
+      # ever reach the app.
+      client_max_body_size 10m;
+
+      server {
+        listen {{ .Values.nginx.port }};
+        server_name _;
+
+        # nginx's own health check — self-contained, so a blip in the app
+        # doesn't make the kubelet restart nginx. (The app has its own probe.)
+        location = /healthz {
+          access_log off;
+          add_header Content-Type text/plain;
+          return 200 "ok\n";
+        }
+
+        # Static assets served straight from the shared in-pod volume.
+        location /static/ {
+          alias /opt/static/;
+          expires 1h;
+          access_log off;
+        }
+
+        # Everything else is proxied to the app container in the same pod.
+        location / {
+          proxy_pass http://127.0.0.1:{{ .Values.config.PORT | default "8080" }};
+          proxy_set_header Host              $host;
+          proxy_set_header X-Real-IP         $remote_addr;
+          proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+        }
+      }
+    }

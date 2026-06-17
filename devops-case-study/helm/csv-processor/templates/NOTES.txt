@@ -1,0 +1,9 @@
+{{ include "csv-processor.fullname" . }} deployed.
+
+Pod: nginx + app in one pod, sharing static assets via an in-pod emptyDir.
+Service: {{ .Values.service.type }} on port {{ .Values.service.port }} -> nginx :{{ .Values.nginx.port }} -> app :{{ .Values.config.PORT | default "8080" }}
+HPA: {{ if .Values.hpa.enabled }}{{ .Values.hpa.minReplicas }}-{{ .Values.hpa.maxReplicas }} replicas @ {{ .Values.hpa.targetCPUUtilizationPercentage }}% CPU{{ else }}disabled{{ end }}
+
+Try it:
+  kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "csv-processor.fullname" . }} 8080:{{ .Values.service.port }}
+  open http://localhost:8080
