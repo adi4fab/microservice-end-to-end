@@ -1,0 +1,12 @@
+{
+  "services": [
+    "organization",
+    "identity",
+    "networking",
+    "kubernetes",
+    "data-stores",
+    "security",
+    "observability",
+    "ci-cd"
+  ]
+}

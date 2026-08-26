@@ -1,74 +1,34 @@
-# Terragrunt setup
+# microservice-end-to-end
 
-## Install
+Hands-on AWS platform engineering — multi-account infrastructure, EKS, and the
+tooling around it. Built the way it would be run in production, not the way it is
+demoed.
 
-OSX:
+## Layout
 
-```console
-brew install terragrunt
-```
+| Path | What |
+|---|---|
+| `IAC-terragrunt/` | **Primary infra.** OpenTofu + Terragrunt, 5 AWS accounts |
+| `kind-config.yaml` | Local Kubernetes cluster |
+| `mise.toml` | Pinned tool versions |
 
-## Cache management
+## Docs
 
-To optmize the cache management, export the variables:
+| Doc | Covers |
+|---|---|
+| [Architecture & conventions](IAC-terragrunt/live/_docs/README.md) | Accounts, layout, config hierarchy, naming, tagging, guardrails |
+| [Local setup](IAC-terragrunt/live/_docs/setup-local.md) | Tools, cache, state bootstrap, commands |
 
-```
-vi .zshrc
-export TG_DOWNLOAD_DIR="$HOME/.terragrunt-cache"
-export TF_PLUGIN_CACHE_DIR="$HOME/.terraform.d/plugin-cache"
-mkdir -p ~/.terragrunt-cache
-mkdir -p ~/.terraform.d/plugin-cache
-source ~/.zshrc
-```
-
-## Parallelism
-
-Control how many units run concurrently (`TG_PARALLELISM`; old name was
-`TERRAGRUNT_PARALLELISM`):
+## Quick start
 
 ```console
-export TG_PARALLELISM=10
+brew install mise
+mise install
 ```
 
-> First apply note: with `TF_PLUGIN_CACHE_DIR` set, the very first parallel run
-> can race while populating the provider cache ("Required plugins are not
-> installed"). Warm it once with `TG_PARALLELISM=1`, then bump back to 10 — or
-> just re-run.
+## Guardrails
 
-## Terragrunt Commands
-
-Terragrunt 0.78+ renamed `run-all` to `run --all`. Dependencies are applied in
-order automatically (e.g. kms before s3) — no mock outputs needed.
-
-```console
-terragrunt run --all plan
-terragrunt run --all apply
-terragrunt run --all destroy
-
-# scope to one account/region/unit with --working-dir, e.g.
-AWS_PROFILE=dev terragrunt run --all apply --working-dir live/dev/us-west-1
-```
-
-## State backend bootstrap
-
-Terragrunt 0.78+ no longer auto-creates the state bucket — bootstrap it once per
-account (idempotent). Uses `use_lockfile = true`, so S3 only, no DynamoDB.
-
-```console
-AWS_PROFILE=dev  terragrunt backend bootstrap --all --working-dir IAC-terragrunt/live/dev
-AWS_PROFILE=prod terragrunt backend bootstrap --all --working-dir IAC-terragrunt/live/prod
-```
-
-## Install pre-commit
-
-```console
-brew install pre-commit
-pre-commit --version
-```
-
-- Create the file `.pre-commit-config.yaml` at root of the repo, contents can see in the file.
-- `pre-commit install` run this command at the root of the repo.
-- To run for specific folder use below command
-```console
-pre-commit run --files $(git ls-files customer1-dev)
-```
+- **`allowed_account_ids`** — a unit in the wrong folder fails instead of deploying wrong
+- **`iac-directory` tag** — every resource carries the repo path that made it
+- **gitleaks + detect-private-key** pre-commit hooks, plus GitHub push protection
+- **`main` is protected** — PR required, no force-push, no deletion
