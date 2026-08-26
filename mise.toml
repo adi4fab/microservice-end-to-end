@@ -1,0 +1,17 @@
+# Pinned tool versions. `mise install` gets everyone (and CI) to the same set.
+[tools]
+opentofu   = "1.10.6"
+terragrunt = "0.97.2"
+kubectl    = "1.34.1"
+helm       = "3.16.4"
+kind       = "0.32.0"
+k9s        = "latest"
+yq         = "latest"
+
+[tasks.fmt]
+description = "Format all HCL"
+run = "terragrunt hcl fmt"
+
+[tasks.validate]
+description = "Validate all HCL"
+run = "terragrunt hcl validate"
