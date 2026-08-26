@@ -1,9 +1,0 @@
-.git
-node_modules
-npm-debug.log
-*.md
-.env
-.env.local
-.env.example
-Dockerfile
-.dockerignore
