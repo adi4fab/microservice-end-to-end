@@ -48,10 +48,22 @@ align the learning setup to those real-world patterns when provided.
 
 ## Git workflow
 
-- Default branch: `main`. The user merges via **pull requests**, not direct commits to main.
-- `gh` CLI is installed and authenticated (account `adi4fab`, SSH, `repo` scope) —
-  open PRs directly with `gh pr create` and hand over the live link.
-- Standard flow: branch → commit → push → `gh pr create` → user merges → sync main + prune branch.
+**`main` is never written to directly. "Push this" always means "open a PR".**
+
+- Flow: `git status --short` → branch → stage explicitly → commit → push →
+  `gh pr create` → **hand over the live link and stop**. The user merges, never Claude.
+- Branch prefixes: `feat/` · `fix/` · `chore/` · `docs/` · `refactor/`
+- **After the user confirms the merge, sync immediately** — don't defer to next session:
+  ```bash
+  git switch main && git pull --ff-only origin main
+  git fetch --prune && git branch -d <merged-branch>
+  ```
+  `--ff-only` fails loudly on divergence instead of creating a surprise merge commit;
+  `--prune` clears the remote ref GitHub deleted on merge.
+- Never `git add -A` without showing what it picked up. Never `--no-verify` silently.
+- Never force-push a shared branch; `--force-with-lease` only, and ask first.
+- `gh` CLI is authenticated (SSH). Note: the token lacks the `workflow` scope, so pushes
+  touching `.github/workflows/` will be rejected until `gh auth refresh -s workflow` is run.
 - `.claude/worktrees/` and `.claude/settings.local.json` are gitignored.
 
 ## Tooling
