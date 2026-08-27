@@ -87,15 +87,22 @@ onlythetop:service-registry-key
 | State bucket per account **and** region | One per account | Single-region for now |
 | Terragrunt Stacks | Plain units | Stacks has no `dependency` support; breaks Atlantis |
 
-## Not yet done — decided, not deferred forever
+## The four repos
 
-**Modules move to their own repo** (`infrastructure-modules`), sourced with
-`git::` + `?ref=`, exactly as Gruntwork recommends and Charizard does.
+| Repo | Holds |
+|---|---|
+| **`infra-live`** | This repo — the Terragrunt tree, what exists in AWS |
+| [`infra-modules`](https://github.com/adi4fab/infra-modules) | Reusable OpenTofu modules. Blueprints only |
+| [`k8s`](https://github.com/adi4fab/k8s) | Kubernetes manifests, local cluster config |
+| [`microservices`](https://github.com/adi4fab/microservices) | Application code |
 
-- Trigger: **before the first custom module**
-- Why: independent versioning — run `v1.2.0` in prod while testing `v1.3.0` in dev
+Modules live in their **own repo**, sourced with `git::` + a pinned `?ref=`, as
+Gruntwork recommends.
+
+- **Why:** independent versioning — run `v1.2.0` in prod while testing `v1.3.0` in dev
 - A local `modules/` folder cannot do that: change it and every unit gets it on the
   next apply
+- ⚠️ **A module change is not live until this repo bumps its `?ref=`**
 
 ## Module sources
 
