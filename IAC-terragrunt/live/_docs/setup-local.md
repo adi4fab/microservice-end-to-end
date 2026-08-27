@@ -65,6 +65,44 @@ terragrunt run --all apply --working-dir IAC-terragrunt/live/dev/us-east-1
 
 Dependencies apply in order automatically.
 
+## How apply works today — manual, on purpose
+
+**There is no apply pipeline. Every apply is run by a human from a laptop.**
+
+This is a deliberate choice, not an oversight:
+
+- Automated apply means something in CI holds credentials that can change prod
+- That is worth building **after** the accounts, SSO and guardrails exist — not before
+- Atlantis and ARC runners are **Phase 11**, and `shared` is the account that will host them
+
+### Running an apply
+
+```console
+# credentials must already resolve to the TARGET account
+terragrunt run --all --non-interactive -- apply
+```
+
+⚠️ **The backend does not inherit the provider's `assume_role`.** Whatever credentials
+are ambient are what the state operations use. Run under a profile that resolves to the
+account you are applying to, or state lands in the wrong place.
+
+### What CI does and does not do
+
+| | |
+|---|---|
+| CI **does** | `terragrunt hcl validate`, fmt, gitleaks, source-pinning checks |
+| CI **does not** | `plan`, `apply`, or hold any AWS credentials |
+
+There is no `id-token: write` and no AWS secret in any workflow here. **Nothing in CI
+can touch AWS.** That is intentional while apply is manual.
+
+### What changes at Phase 11
+
+- Atlantis in `shared` runs plan-on-PR and apply-on-comment
+- ARC scale sets replace GitHub-hosted runners
+- ⚠️ Atlantis does **not** support Terragrunt out of the box — it needs a custom image
+  and `terragrunt-atlantis-config`, which currently lags Terragrunt by many versions
+
 ## Pre-commit
 
 ```console
