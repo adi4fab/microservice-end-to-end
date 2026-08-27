@@ -22,16 +22,32 @@ jobs:
       - name: terragrunt hcl validate
         run: mise exec -- terragrunt hcl validate --working-dir IAC-terragrunt/live
 
-      - name: "no unpinned git:: sources"
+      - name: source hygiene
+        shell: bash
         run: |
-          # A module source without ?ref= changes under you: identical code,
-          # different infrastructure on different days.
-          ! grep -rn 'git::' --include='*.hcl' IAC-terragrunt/ | grep -v '?ref=' \
-            || { echo "unpinned git:: source above — add ?ref=<tag>"; exit 1; }
+          # Scans BOTH .hcl and .tf — a module block can appear in either.
+          # Excludes .terragrunt-cache / .terraform: those hold DOWNLOADED
+          # third-party code, so scanning them reports other people's sources
+          # as our violations.
+          set -uo pipefail
+          fail=0
 
-      - name: "no tfr:// registry shorthand"
-        run: |
+          # An unpinned module changes under you: identical code, different
+          # infrastructure on different days.
+          if grep -rn 'git::' --include='*.hcl' --include='*.tf' \
+               --exclude-dir='.terragrunt-cache' --exclude-dir='.terraform' \
+               IAC-terragrunt | grep -v '?ref='; then
+            echo "::error::unpinned git:: source above — add ?ref=<tag>"
+            fail=1
+          fi
+
           # tfr:/// resolves to registry.terraform.io even when the engine is
-          # OpenTofu. Use git:: and pin the tag.
-          ! grep -rn 'tfr:' --include='*.hcl' IAC-terragrunt/ \
-            || { echo "tfr:// source above — use git:: with ?ref= instead"; exit 1; }
+          # OpenTofu. The registry is only an index over GitHub — go direct.
+          if grep -rn 'tfr:' --include='*.hcl' --include='*.tf' \
+               --exclude-dir='.terragrunt-cache' --exclude-dir='.terraform' \
+               IAC-terragrunt; then
+            echo "::error::tfr:// source above — use git:: with ?ref= instead"
+            fail=1
+          fi
+
+          exit $fail
