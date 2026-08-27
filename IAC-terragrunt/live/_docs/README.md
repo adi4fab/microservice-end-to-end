@@ -84,9 +84,30 @@ onlythetop:service-registry-key
 
 | Theirs | Ours | Why |
 |---|---|---|
-| Two repos (`modules` + `live`) | One repo | Learning setup |
 | State bucket per account **and** region | One per account | Single-region for now |
 | Terragrunt Stacks | Plain units | Stacks has no `dependency` support; breaks Atlantis |
+
+## Not yet done — decided, not deferred forever
+
+**Modules move to their own repo** (`infrastructure-modules`), sourced with
+`git::` + `?ref=`, exactly as Gruntwork recommends and Charizard does.
+
+- Trigger: **before the first custom module**
+- Why: independent versioning — run `v1.2.0` in prod while testing `v1.3.0` in dev
+- A local `modules/` folder cannot do that: change it and every unit gets it on the
+  next apply
+
+## Module sources
+
+Always `git::`, always pinned:
+
+```hcl
+source = "git::git@github.com:terraform-aws-modules/terraform-aws-vpc?ref=v5.8.1"
+```
+
+**Never** `tfr:///…` — three slashes resolves to **registry.terraform.io**, even when
+the engine is OpenTofu. The registry is only an index over GitHub; go straight to the
+repo and pin the tag.
 
 `service_catalog.json` does double duty — category folder **and** ownership tag.
 Fine while there's one owner. Split when there's more than one.
