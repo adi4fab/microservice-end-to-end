@@ -8,11 +8,17 @@ Multi-account AWS infra. **OpenTofu** + **Terragrunt**.
 |---|---|---|
 | `mgmt` | Org, billing, Identity Center instance | `null` — human + MFA only |
 | `security` | Delegated admin — permission sets, assignments | assumes a role |
-| `shared` | CI/CD — runners, Atlantis, ECR | assumes a role |
+| `shared` | CI/CD — runners, ECR, Route53, tf-state | assumes a role |
 | `dev` · `prod` | Workloads | assumes a role |
 
 CI lives in `shared`, identity lives in `security` — **different accounts**, so a bot
 can't grant itself admin.
+
+**No OUs.** All five accounts sit directly under Root. With one account per OU an
+attachment to the OU is identical to attaching to the account, so the OUs bought
+nothing. Cost: SCPs attach to Root (all-or-nothing) or to one account, so there is no
+staged rollout — attach a new SCP to `dev` first, verify, then move it to Root.
+Revisit when a second account belongs in any one group.
 
 ## Layout
 
@@ -112,15 +118,19 @@ Always `git::`, always pinned:
 source = "git::git@github.com:terraform-aws-modules/terraform-aws-vpc?ref=v5.8.1"
 ```
 
-**Never** `tfr:///…` — three slashes resolves to **registry.terraform.io**, even when
-the engine is OpenTofu. The registry is only an index over GitHub; go straight to the
-repo and pin the tag.
+**Never** `tfr:///…` — three slashes resolves to a **registry**, and *which* registry
+depends on the wrapped binary: `terraform` → `registry.terraform.io`, `tofu` →
+`registry.opentofu.org`. So the same line means different things on different machines.
+The registry is only an index over GitHub; go straight to the repo and pin the tag.
 
 `service_catalog.json` does double duty — category folder **and** ownership tag.
 Fine while there's one owner. Split when there's more than one.
 
 ## Gotchas
 
+- **mise must be *activated*, not just installed** — without `eval "$(mise activate zsh)"`
+  in `~/.zshrc`, nothing mise manages is on `PATH`. `mise ls` still shows every tool
+  pinned, and `tofu` still does not exist, so `terraform_binary = "tofu"` fails
 - **zsh eats `:r`** — `$id:role/` becomes `${id:r}` + `ole/`. Always brace `${id}:role/`
 - **`--backend-bootstrap` ignores the backend's `assume_role`** — creates the bucket in the wrong account
 - **The backend authenticates separately from the provider** — it needs its own `assume_role`
